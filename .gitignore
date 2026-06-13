@@ -1,0 +1,22 @@
+# Dependencies & build output (regenerated on each machine)
+node_modules/
+/.svelte-kit/
+/build/
+
+# SQLite database log sidecars & local backups (the main music.db is tracked)
+music.db-shm
+music.db-wal
+music.db-journal
+/backups/
+
+# Environment configurations
+.env
+.env.local
+.env.[a-zA-Z0-9]*
+!.env.example
+
+# OS / editor noise
+.DS_Store
+*.log
+.vscode/*
+!.vscode/settings.json
