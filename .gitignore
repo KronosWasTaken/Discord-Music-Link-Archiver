@@ -7,7 +7,7 @@ node_modules/
 music.db-shm
 music.db-wal
 music.db-journal
-/backups/
+
 
 # Environment configurations
 .env

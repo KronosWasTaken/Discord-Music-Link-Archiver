@@ -10,18 +10,17 @@ import {
   updateSong,
   deleteSongById,
   nextDayFor,
-  maxSortOrder
+  maxSortOrder,
+  getCanonicalUser
 } from '$lib/server/db/queries';
 import { fetchSongMeta } from '$lib/server/enrich';
 import type { SongRequest } from '$lib/types';
-
-const isCuratorUser = (user: string) => ['the_pervy_s4ge', 'thepervysage'].includes(user.toLowerCase());
 
 export const GET: RequestHandler = async ({ url }) => {
   await ensureReady();
   const user = url.searchParams.get('user') ?? CURATOR;
   try {
-    return json(getSongsByUser(user));
+    return json(getSongsByUser(getCanonicalUser(user)));
   } catch (err) {
     console.error('GET /api/songs:', (err as Error).message);
     return json([], { status: 500 });
@@ -35,44 +34,25 @@ export const POST: RequestHandler = async ({ request }) => {
     if (!data.link) return text('link is required', { status: 400 });
 
     const targetUser = data.targetUser ?? CURATOR;
-    const owner = isCuratorUser(targetUser) ? CURATOR : targetUser;
+    const owner = getCanonicalUser(targetUser);
     const link = cleanURL(data.link);
     const id = `user_added_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
-    if (owner === CURATOR) {
-      if (!data.day) return text('day is required', { status: 400 });
-      insertSong({
-        id,
-        owner: CURATOR,
-        day: data.day,
-        link,
-        videoId: extractVideoID(link),
-        rawTitle: data.rawTitle ?? '',
-        cleanedSong: data.cleanedSong ?? '',
-        cleanedArtist: data.cleanedArtist ?? '',
-        originalMessage: data.originalMessage ?? '',
-        authorName: data.authorName ?? 'ThePervySage',
-        timestamp: new Date().toISOString(),
-        sortOrder: maxSortOrder(CURATOR) + 1
-      });
-    } else {
-      // Contributors: fetch title/artist automatically and append as a new day.
-      const meta = await fetchSongMeta(link);
-      insertSong({
-        id,
-        owner,
-        day: nextDayFor(owner),
-        link,
-        videoId: extractVideoID(link),
-        rawTitle: meta.rawTitle,
-        cleanedSong: meta.cleanedSong,
-        cleanedArtist: meta.cleanedArtist,
-        originalMessage: data.originalMessage ? `${link}\n${data.originalMessage}` : link,
-        authorName: owner,
-        timestamp: new Date().toISOString(),
-        sortOrder: maxSortOrder(owner) + 1
-      });
-    }
+    if (!data.day) return text('day is required', { status: 400 });
+    insertSong({
+      id,
+      owner,
+      day: data.day,
+      link,
+      videoId: extractVideoID(link),
+      rawTitle: data.rawTitle ?? '',
+      cleanedSong: data.cleanedSong ?? '',
+      cleanedArtist: data.cleanedArtist ?? '',
+      originalMessage: data.originalMessage ?? '',
+      authorName: data.authorName ?? owner,
+      timestamp: new Date().toISOString(),
+      sortOrder: maxSortOrder(owner) + 1
+    });
 
     return json(getSongsByUser(owner));
   } catch (err) {

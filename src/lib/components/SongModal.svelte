@@ -30,8 +30,8 @@
 
   // Which user's collection this song belongs to. Editing only applies to the
   // curator's own songs, so the picker is offered in add mode only.
-  let targetUser = $state(isEditMode ? CURATOR : untrack(() => currentUser));
-  const targetIsCurator = $derived(['the_pervy_s4ge', 'thepervysage'].includes(targetUser.toLowerCase()));
+  let targetUser = $state(untrack(() => currentUser));
+  const targetIsCurator = true;
 
   let formUrl = $state(initial?.link ?? '');
   let formDay = $state(isEditMode ? (initial?.day ?? '').replace(/\s+special/i, '').trim() : initialDay);
@@ -39,8 +39,15 @@
   let formArtist = $state(initial?.cleanedArtist ?? '');
   let formRawTitle = $state(initial?.rawTitle ?? '');
   let formNotes = $state(initial?.originalMessage ?? '');
-  let formAuthorName = $state(initial?.authorName || 'ThePervySage');
+  let formAuthorName = $state(initial?.authorName || (untrack(() => targetUser) === CURATOR ? 'ThePervySage' : untrack(() => targetUser)));
   let formIsSpecial = $state((initial?.day ?? '').toLowerCase().includes('special'));
+
+  let userEditedAuthorName = $state(false);
+  $effect(() => {
+    if (!isEditMode && !userEditedAuthorName) {
+      formAuthorName = targetUser === CURATOR ? 'ThePervySage' : targetUser;
+    }
+  });
 
   let isLoadingYTApi = $state(false);
   let ytApiError = $state('');
@@ -163,6 +170,17 @@
           <div class="form-group">
             <label for="artist">Cleaned Artist</label>
             <input type="text" id="artist" bind:value={formArtist} placeholder="Artist / Movie" />
+          </div>
+
+          <div class="form-group">
+            <label for="authorName">Discord Nickname</label>
+            <input
+              type="text"
+              id="authorName"
+              bind:value={formAuthorName}
+              oninput={() => userEditedAuthorName = true}
+              placeholder="e.g. ThePervySage"
+            />
           </div>
         {/if}
 

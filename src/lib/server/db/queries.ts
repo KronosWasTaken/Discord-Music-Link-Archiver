@@ -23,10 +23,21 @@ export function songCount(): number {
   return db.select({ id: songs.id }).from(songs).all().length;
 }
 
+export const getCanonicalUser = (user: string): string => {
+  const lower = (user ?? '').toLowerCase();
+  if (lower === 'thepervysage' || lower === 'the_pervy_s4ge') return CURATOR;
+  if (lower === 'hikachu') return 'hikachu__';
+  return user;
+};
+
 /** Distinct owners, curator pinned first, the rest alphabetical. */
 export function getUsers(): string[] {
-  const owners = db.selectDistinct({ owner: songs.owner }).from(songs).all().map((r) => r.owner);
-  const others = owners.filter((o) => o.toLowerCase() !== CURATOR).sort();
+  const owners = db.selectDistinct({ owner: songs.owner }).from(songs).all().map((r) => getCanonicalUser(r.owner));
+  const uniqueOwners = Array.from(new Set(owners));
+  if (!uniqueOwners.some((o) => o.toLowerCase() === 'hikachu__')) {
+    uniqueOwners.push('hikachu__');
+  }
+  const others = uniqueOwners.filter((o) => o.toLowerCase() !== CURATOR).sort();
   return [CURATOR, ...others];
 }
 
@@ -34,7 +45,7 @@ export function getSongsByUser(owner: string): Song[] {
   const rows = db
     .select()
     .from(songs)
-    .where(eq(songs.owner, owner))
+    .where(eq(songs.owner, getCanonicalUser(owner)))
     .all()
     .sort((a, b) => a.sortOrder - b.sortOrder);
   return rows.map(toSong);
@@ -46,14 +57,19 @@ export function getSongById(id: string): SongRow | undefined {
 
 export function insertSongs(rows: NewSongRow[]): void {
   if (rows.length === 0) return;
+  for (const row of rows) {
+    if (row.owner) row.owner = getCanonicalUser(row.owner);
+  }
   db.insert(songs).values(rows).run();
 }
 
 export function insertSong(row: NewSongRow): void {
+  if (row.owner) row.owner = getCanonicalUser(row.owner);
   db.insert(songs).values(row).run();
 }
 
 export function updateSong(id: string, patch: Partial<NewSongRow>): boolean {
+  if (patch.owner) patch.owner = getCanonicalUser(patch.owner);
   const res = db.update(songs).set(patch).where(eq(songs.id, id)).run();
   return res.changes > 0;
 }
@@ -65,7 +81,7 @@ export function deleteSongById(id: string): boolean {
 
 /** Next "Day N" label for a user, based on the highest day number they have. */
 export function nextDayFor(owner: string): string {
-  const rows = db.select({ day: songs.day }).from(songs).where(eq(songs.owner, owner)).all();
+  const rows = db.select({ day: songs.day }).from(songs).where(eq(songs.owner, getCanonicalUser(owner))).all();
   let max = 0;
   for (const { day } of rows) {
     const m = day.match(/\d+/);
@@ -76,6 +92,6 @@ export function nextDayFor(owner: string): string {
 
 /** Highest sortOrder within a user's collection (so appends land at the end). */
 export function maxSortOrder(owner: string): number {
-  const rows = db.select({ sortOrder: songs.sortOrder }).from(songs).where(eq(songs.owner, owner)).all();
+  const rows = db.select({ sortOrder: songs.sortOrder }).from(songs).where(eq(songs.owner, getCanonicalUser(owner))).all();
   return rows.reduce((m, r) => Math.max(m, r.sortOrder), 0);
 }

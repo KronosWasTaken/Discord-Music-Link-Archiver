@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { ensureReady } from '$lib/server/init';
-import { CURATOR, getSongsByUser } from '$lib/server/db/queries';
+import { CURATOR, getSongsByUser, getCanonicalUser } from '$lib/server/db/queries';
 import type { Song } from '$lib/types';
 
 const HEADERS = [
@@ -21,8 +21,8 @@ const toRow = (s: Song): string =>
 export const GET: RequestHandler = async ({ params }) => {
   await ensureReady();
 
-  // "ThePervySage" is the curator's friendly filename; everyone else maps 1:1.
-  const owner = params.name.toLowerCase() === 'thepervysage' ? CURATOR : params.name;
+  // Canonicalize owner name (including curator and hikachu aliases)
+  const owner = getCanonicalUser(params.name);
   const songs = getSongsByUser(owner);
   if (songs.length === 0) throw error(404, 'No songs for that user');
 

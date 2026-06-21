@@ -33,7 +33,7 @@
   // null = closed; { song } where song is null => add, song set => edit
   let modal = $state<{ song: Song | null } | null>(null);
 
-  const isCurator = $derived(currentUser === CURATOR);
+  const isCurator = true;
   const uniqueDays = $derived(getUniqueDays(songs));
   const visibleSongs = $derived(filterAndSortSongs(songs, { searchTerm, selectedDay, sort: currentSort }));
 

@@ -13,8 +13,9 @@
     onAdd: () => void;
   } = $props();
 
-  const csvHref = $derived(isCurator ? '/csv/ThePervySage' : `/csv/${currentUser}`);
-  const csvName = $derived(isCurator ? 'ThePervySage.csv' : `${currentUser}.csv`);
+  const isCuratorUser = $derived(currentUser.toLowerCase() === 'the_pervy_s4ge');
+  const csvHref = $derived(isCuratorUser ? '/csv/ThePervySage' : `/csv/${currentUser}`);
+  const csvName = $derived(isCuratorUser ? 'ThePervySage.csv' : `${currentUser}.csv`);
 </script>
 
 <header>
