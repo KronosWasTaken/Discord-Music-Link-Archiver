@@ -8,7 +8,7 @@ export const load: PageServerLoad = async () => {
   await ensureReady();
   return {
     user: CURATOR,
-    users: getUsers(),
-    songs: getSongsByUser(CURATOR)
+    users: await getUsers(),
+    songs: await getSongsByUser(CURATOR)
   };
 };

@@ -29,8 +29,10 @@
   const isEditMode = initial !== null;
 
   // Which user's collection this song belongs to. Editing only applies to the
-  // curator's own songs, so the picker is offered in add mode only.
-  let targetUser = $state(untrack(() => currentUser));
+  // curator's own songs, so the picker is offered in add mode only. In edit
+  // mode this must be the song's actual owner (not necessarily currentUser —
+  // e.g. when editing from an all-users search result).
+  let targetUser = $state(untrack(() => (isEditMode ? (initial?.owner ?? currentUser) : currentUser)));
   const targetIsCurator = true;
 
   let formUrl = $state(initial?.link ?? '');
@@ -217,7 +219,7 @@
     @apply fixed inset-0 bg-black/56 flex items-center justify-center z-1000 p-6;
   }
   .modal-content {
-    @apply bg-md-sys-surface-container-high rounded-[28px] w-full max-w-[680px] shadow-md-elevation-3 overflow-hidden border-none relative;
+    @apply bg-md-sys-surface-container-high rounded-[28px] w-full max-w-170 shadow-md-elevation-3 overflow-hidden border-none relative;
     animation: modalOpen 0.3s cubic-bezier(0.2, 0, 0, 1);
   }
   @keyframes modalOpen {
@@ -259,7 +261,7 @@
     transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
   }
   input:focus, textarea:focus {
-    @apply border-md-sys-primary border-2 px-[15px] py-[11px];
+    @apply border-md-sys-primary border-2 px-3.75 py-2.75;
   }
   .input-url-container {
     @apply relative flex items-center;
@@ -268,7 +270,7 @@
     @apply w-full pr-11;
   }
   .input-spinner {
-    @apply absolute right-4 border-2 border-solid border-md-sys-surface-bright w-[18px] h-[18px] rounded-full border-l-md-sys-primary;
+    @apply absolute right-4 border-2 border-solid border-md-sys-surface-bright w-4.5 h-4.5 rounded-full border-l-md-sys-primary;
     animation: spin 0.8s linear infinite;
   }
   .form-error-msg {

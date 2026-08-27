@@ -2,6 +2,7 @@
 
 export interface Song {
   id: string;
+  owner: string;
   day: string;
   link: string;
   videoId: string;

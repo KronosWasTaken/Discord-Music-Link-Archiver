@@ -8,8 +8,5 @@ export default defineConfig({
     host: true,
     port: 5173,
     allowedHosts: true
-  },
-  // better-sqlite3 is a native module — keep it external instead of bundling.
-  ssr: { external: ['better-sqlite3'] },
-  optimizeDeps: { exclude: ['better-sqlite3'] }
+  }
 });

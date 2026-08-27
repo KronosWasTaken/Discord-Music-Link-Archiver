@@ -1,0 +1,23 @@
+node_modules
+.svelte-kit
+build
+.git
+.vscode
+backups
+data
+
+# The DB lives on a bind-mounted volume, never baked into the image.
+music.db
+music.db-shm
+music.db-wal
+music.db-journal
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+
+.env
+.env.*
+!.env.example
+
+README.md

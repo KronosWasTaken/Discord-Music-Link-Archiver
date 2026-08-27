@@ -23,7 +23,7 @@ export const GET: RequestHandler = async ({ params }) => {
 
   // Canonicalize owner name (including curator and hikachu aliases)
   const owner = getCanonicalUser(params.name);
-  const songs = getSongsByUser(owner);
+  const songs = await getSongsByUser(owner);
   if (songs.length === 0) throw error(404, 'No songs for that user');
 
   const body = [HEADERS.join(','), ...songs.map(toRow)].join('\n');

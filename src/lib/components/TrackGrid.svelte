@@ -8,12 +8,14 @@
     songs,
     isCurator,
     currentUser,
+    showOwner = false,
     onEdit,
     onDelete
   }: {
     songs: Song[];
     isCurator: boolean;
     currentUser: string;
+    showOwner?: boolean;
     onEdit: (song: Song) => void;
     onDelete: (song: Song) => void;
   } = $props();
@@ -35,6 +37,9 @@
             <span class="special-badge">Special</span>
           {/if}
         </div>
+        {#if showOwner}
+          <span class="owner-badge" title="Owner">{song.owner}</span>
+        {/if}
       </div>
 
       <a

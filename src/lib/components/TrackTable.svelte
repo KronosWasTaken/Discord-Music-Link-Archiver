@@ -8,12 +8,14 @@
     songs,
     isCurator,
     currentUser,
+    showOwner = false,
     onEdit,
     onDelete
   }: {
     songs: Song[];
     isCurator: boolean;
     currentUser: string;
+    showOwner?: boolean;
     onEdit: (song: Song) => void;
     onDelete: (song: Song) => void;
   } = $props();
@@ -24,11 +26,14 @@
   const isSpecial = (day: string) => (day || '').toLowerCase().includes('special');
 </script>
 
-<table class="tracks-list">
+<table class="tracks-list" class:has-owner-col={showOwner}>
   <thead>
     <tr>
       <th style="width: 100px;">Day</th>
       <th>Track Info</th>
+      {#if showOwner}
+        <th style="width: 140px;">User</th>
+      {/if}
       <th>Original Video Title</th>
       <th style="text-align: right; width: 160px;">Actions</th>
     </tr>
@@ -48,6 +53,11 @@
           </a>
           <div class="list-artist-name">{song.cleanedArtist || 'Unknown Artist'}</div>
         </td>
+        {#if showOwner}
+          <td class="list-cell">
+            <span class="owner-badge">{song.owner}</span>
+          </td>
+        {/if}
         <td class="list-cell">
           <div class="list-raw-title" title={song.rawTitle}>{song.rawTitle || '—'}</div>
         </td>
@@ -67,7 +77,7 @@
       </tr>
       {#if openIndex === idx}
         <tr class="list-discord-drawer-row">
-          <td colspan="4" class="list-discord-cell">
+          <td colspan={showOwner ? 5 : 4} class="list-discord-cell">
             <DiscordBubble {song} {currentUser} />
           </td>
         </tr>
@@ -110,7 +120,7 @@
     @apply text-[0.85rem] text-md-sys-text-secondary mt-1;
   }
   .list-raw-title {
-    @apply text-[0.82rem] text-md-sys-outline max-w-[360px] truncate italic;
+    @apply text-[0.82rem] text-md-sys-outline max-w-90 truncate italic;
   }
   .list-discord-drawer-row {
     @apply bg-md-sys-surface-container-low;
@@ -123,8 +133,12 @@
   }
 
   @media (max-width: 768px) {
-    .tracks-list th:nth-child(3),
-    .tracks-list td:nth-child(3) {
+    .tracks-list:not(.has-owner-col) th:nth-child(3),
+    .tracks-list:not(.has-owner-col) td:nth-child(3) {
+      @apply hidden;
+    }
+    .tracks-list.has-owner-col th:nth-child(4),
+    .tracks-list.has-owner-col td:nth-child(4) {
       @apply hidden;
     }
     .list-cell {

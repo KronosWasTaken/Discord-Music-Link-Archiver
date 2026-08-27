@@ -5,6 +5,7 @@
   let { song, currentUser }: { song: Song; currentUser: string } = $props();
 
   const initials = $derived((song.authorName || 'P').charAt(0).toUpperCase());
+  const handle = $derived(song.owner || currentUser);
 </script>
 
 <div class="discord-bubble">
@@ -13,7 +14,7 @@
     <div class="discord-meta">
       <div class="discord-user-info">
         <span class="discord-nickname">{song.authorName}</span>
-        <span class="discord-username">@{currentUser}</span>
+        <span class="discord-username">@{handle}</span>
       </div>
       <span class="discord-timestamp">{formatTimestamp(song.timestamp)}</span>
     </div>

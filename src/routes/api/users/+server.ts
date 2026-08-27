@@ -5,5 +5,5 @@ import { getUsers } from '$lib/server/db/queries';
 
 export const GET: RequestHandler = async () => {
   await ensureReady();
-  return json(getUsers());
+  return json(await getUsers());
 };

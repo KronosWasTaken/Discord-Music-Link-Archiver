@@ -11,6 +11,12 @@ export const getUsers = (): Promise<string[]> => fetch('/api/users').then(asJson
 export const getSongs = (user: string): Promise<Song[]> =>
   fetch(`/api/songs?user=${encodeURIComponent(user)}`).then(asJson<Song[]>);
 
+/** Every song across every user, for cross-user search. */
+export const getAllSongs = (): Promise<Song[]> => fetch('/api/songs?all=1').then(asJson<Song[]>);
+
+export const searchSongs = (q: string, scope: 'user' | 'all', user: string): Promise<Song[]> =>
+  fetch(`/api/search?q=${encodeURIComponent(q)}&scope=${scope}&user=${encodeURIComponent(user)}`).then(asJson<Song[]>);
+
 export interface YoutubeInfo {
   title?: string;
   author_name?: string;

@@ -8,22 +8,19 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "node build",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "db:generate": "drizzle-kit generate",
-    "db:studio": "drizzle-kit studio"
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
-    "better-sqlite3": "^11.8.1",
-    "drizzle-orm": "^0.38.4"
+    "cassandra-driver": "^4.9.0",
+    "ioredis": "^6.0.0",
+    "typesense": "^3.0.6"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^5.2.12",
     "@sveltejs/kit": "^2.22.0",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "@tailwindcss/vite": "^4.3.0",
-    "@types/better-sqlite3": "^7.6.12",
     "@types/node": "^22.0.0",
-    "drizzle-kit": "^0.30.2",
     "svelte": "^5.55.0",
     "svelte-check": "^4.1.4",
     "tailwindcss": "^4.3.0",

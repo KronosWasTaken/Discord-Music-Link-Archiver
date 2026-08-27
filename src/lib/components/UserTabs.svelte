@@ -24,7 +24,7 @@
   @reference "../../app.css";
 
   .user-tabs-container {
-    @apply flex gap-2 max-w-[1200px] mx-auto mb-8 overflow-x-auto p-1 border-b border-md-sys-outline-variant;
+    @apply flex gap-2 max-w-300 mx-auto mb-8 overflow-x-auto p-1 border-b border-md-sys-outline-variant;
     scrollbar-width: none;
   }
   .user-tabs-container::-webkit-scrollbar {

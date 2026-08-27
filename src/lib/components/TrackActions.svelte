@@ -77,7 +77,7 @@
     @apply bg-[#5865f2]/12 border-[#5865F2] text-[#7289da];
   }
   .btn-discord svg {
-    @apply w-[18px] h-[18px];
+    @apply w-4.5 h-4.5;
   }
   .btn-delete {
     @apply bg-transparent border border-solid border-md-sys-outline-variant text-md-sys-outline p-2 rounded-full w-9 h-9 flex items-center justify-center;
@@ -86,7 +86,7 @@
     @apply bg-red-500/12 border-md-sys-error text-md-sys-error;
   }
   .btn-delete svg {
-    @apply w-[18px] h-[18px];
+    @apply w-4.5 h-4.5;
   }
   .btn-edit {
     @apply bg-transparent border border-solid border-md-sys-outline-variant text-md-sys-outline p-2 rounded-full w-9 h-9 flex items-center justify-center;
@@ -95,7 +95,7 @@
     @apply bg-md-sys-primary/12 border-md-sys-primary text-md-sys-primary;
   }
   .btn-edit svg {
-    @apply w-[18px] h-[18px];
+    @apply w-4.5 h-4.5;
   }
   .list-play-btn {
     @apply px-4 py-2 text-[0.8rem] rounded-full;

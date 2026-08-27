@@ -6,13 +6,17 @@
     currentSort = $bindable(),
     viewMode = $bindable(),
     selectedDay = $bindable(),
-    uniqueDays
+    searchScope = $bindable(),
+    uniqueDays,
+    isSearching = false
   }: {
     searchTerm: string;
     currentSort: SortKey;
     viewMode: 'grid' | 'list';
     selectedDay: string;
+    searchScope: 'user' | 'all';
     uniqueDays: string[];
+    isSearching?: boolean;
   } = $props();
 
   // Translate vertical mouse wheel into horizontal scroll on the day timeline.
@@ -38,15 +42,40 @@
         type="text"
         bind:value={searchTerm}
         class="search-input"
-        placeholder="Search song title, artist, keyword or day..."
+        placeholder={searchScope === 'all'
+          ? 'Search song title, artist, user, keyword or day across everyone...'
+          : 'Search song title, artist, keyword or day...'}
       />
-      <svg class="search-icon-svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
+      {#if isSearching}
+        <div class="search-spinner"></div>
+      {:else}
+        <svg class="search-icon-svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      {/if}
       {#if searchTerm}
         <button class="clear-search" onclick={() => (searchTerm = '')}>&times;</button>
       {/if}
+    </div>
+
+    <div class="scope-toggle">
+      <button
+        class="toggle-btn scope-btn"
+        class:active={searchScope === 'user'}
+        onclick={() => (searchScope = 'user')}
+        title="Search only the selected user's tracks"
+      >
+        This User
+      </button>
+      <button
+        class="toggle-btn scope-btn"
+        class:active={searchScope === 'all'}
+        onclick={() => (searchScope = 'all')}
+        title="Search every user's tracks at once"
+      >
+        All Users
+      </button>
     </div>
 
     <div class="sort-container">
@@ -102,13 +131,13 @@
   @reference "../../app.css";
 
   .controls-wrapper {
-    @apply flex flex-col gap-6 max-w-[1200px] mx-auto mb-10 bg-md-sys-surface-container-low rounded-2xl p-6 shadow-md-elevation-1 border border-solid border-md-sys-outline-variant;
+    @apply flex flex-col gap-6 max-w-300 mx-auto mb-10 bg-md-sys-surface-container-low rounded-2xl p-6 shadow-md-elevation-1 border border-solid border-md-sys-outline-variant;
   }
   .search-row {
     @apply flex gap-4 flex-wrap items-center;
   }
   .search-container {
-    @apply relative grow min-w-[300px];
+    @apply relative grow min-w-75;
   }
   .search-input {
     @apply w-full bg-md-sys-surface-container-high border-2 border-solid border-transparent text-md-sys-on-background px-11 py-3 rounded-full text-[0.92rem] outline-none transition-all duration-200;
@@ -122,6 +151,14 @@
   }
   .search-icon-svg {
     @apply absolute left-[1.2rem] top-1/2 -translate-y-1/2 text-md-sys-outline pointer-events-none w-5 h-5;
+  }
+  .search-spinner {
+    @apply absolute left-[1.2rem] top-1/2 -translate-y-1/2 border-2 border-solid border-md-sys-surface-bright w-5 h-5 rounded-full border-l-md-sys-primary;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    0% { transform: translateY(-50%) rotate(0deg); }
+    100% { transform: translateY(-50%) rotate(360deg); }
   }
   .search-input:focus ~ .search-icon-svg {
     @apply text-md-sys-primary;
@@ -148,11 +185,20 @@
   .sort-select:focus {
     @apply border-md-sys-primary;
   }
+  .scope-toggle {
+    @apply flex bg-transparent border border-solid border-md-sys-outline rounded-full overflow-hidden;
+  }
+  .scope-btn {
+    @apply w-auto px-4 text-[0.82rem] font-medium whitespace-nowrap;
+  }
   .view-toggle {
     @apply flex bg-transparent border border-solid border-md-sys-outline rounded-full overflow-hidden;
   }
+  .view-toggle .toggle-btn {
+    @apply w-11 px-0;
+  }
   .toggle-btn {
-    @apply bg-transparent border-0 border-r border-solid border-md-sys-outline text-md-sys-outline px-4 py-2 cursor-pointer flex items-center justify-center transition-all duration-200 outline-none w-11 h-9;
+    @apply bg-transparent border-0 border-r border-solid border-md-sys-outline text-md-sys-outline px-4 py-2 cursor-pointer flex items-center justify-center transition-all duration-200 outline-none h-9;
   }
   .toggle-btn:hover {
     @apply text-md-sys-primary bg-md-sys-primary/4;
@@ -164,7 +210,7 @@
     @apply bg-md-sys-primary-container text-md-sys-on-primary-container;
   }
   .toggle-btn svg {
-    @apply w-[18px] h-[18px];
+    @apply w-4.5 h-4.5;
   }
   .day-filters-container {
     @apply flex items-center gap-4 border-t border-solid border-md-sys-outline-variant pt-5;

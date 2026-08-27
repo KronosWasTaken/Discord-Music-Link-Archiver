@@ -38,19 +38,25 @@ const COMPARATORS: Record<SortKey, (a: Song, b: Song) => number> = {
   'artist-desc': (a, b) => (b.cleanedArtist || '').localeCompare(a.cleanedArtist || '')
 };
 
+/** `q` must already be trimmed + lowercased. */
+export function matchesSearch(song: Song, q: string): boolean {
+  if (q === '') return true;
+  return (
+    (song.cleanedSong || '').toLowerCase().includes(q) ||
+    (song.cleanedArtist || '').toLowerCase().includes(q) ||
+    (song.rawTitle || '').toLowerCase().includes(q) ||
+    (song.originalMessage || '').toLowerCase().includes(q) ||
+    (song.day || '').toLowerCase().includes(q) ||
+    (song.owner || '').toLowerCase().includes(q) ||
+    (song.authorName || '').toLowerCase().includes(q)
+  );
+}
+
 /** Filter by day + search term, then sort. Returns a new array. */
 export function filterAndSortSongs(songs: Song[], { searchTerm = '', selectedDay = 'All', sort = 'day-asc' }: SongFilter = {}): Song[] {
   const q = searchTerm.trim().toLowerCase();
-  const filtered = songs.filter((song) => {
-    if (selectedDay !== 'All' && getCoreDay(song.day) !== selectedDay) return false;
-    if (q === '') return true;
-    return (
-      (song.cleanedSong || '').toLowerCase().includes(q) ||
-      (song.cleanedArtist || '').toLowerCase().includes(q) ||
-      (song.rawTitle || '').toLowerCase().includes(q) ||
-      (song.originalMessage || '').toLowerCase().includes(q) ||
-      (song.day || '').toLowerCase().includes(q)
-    );
-  });
+  const filtered = songs.filter(
+    (song) => (selectedDay === 'All' || getCoreDay(song.day) === selectedDay) && matchesSearch(song, q)
+  );
   return filtered.sort(COMPARATORS[sort] ?? COMPARATORS['day-asc']);
 }

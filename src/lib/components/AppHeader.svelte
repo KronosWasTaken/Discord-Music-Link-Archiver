@@ -47,6 +47,16 @@
       </svg>
       Download CSV
     </a>
+
+    <form method="POST" action="/logout">
+      <button type="submit" class="btn btn-logout" title="Sign out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
+    </form>
   </div>
 </header>
 
@@ -54,7 +64,7 @@
   @reference "../../app.css";
 
   header {
-    @apply flex justify-between items-center flex-wrap gap-6 max-w-[1200px] mx-auto mb-10 pb-6 border-b border-md-sys-outline-variant;
+    @apply flex justify-between items-center flex-wrap gap-6 max-w-300 mx-auto mb-10 pb-6 border-b border-md-sys-outline-variant;
   }
   .header-title-container {
     @apply flex flex-col gap-1;
@@ -81,7 +91,7 @@
     @apply bg-[#bcccf6] shadow-md-elevation-2;
   }
   .btn-add svg {
-    @apply w-[18px] h-[18px];
+    @apply w-4.5 h-4.5;
   }
   .btn-csv {
     @apply bg-transparent border border-solid border-md-sys-outline text-md-sys-primary;
@@ -91,6 +101,15 @@
   }
   .btn-csv svg {
     @apply w-4 h-4;
+  }
+  .btn-logout {
+    @apply bg-transparent border border-solid border-md-sys-outline-variant text-md-sys-outline p-2.5 rounded-full w-11 h-11;
+  }
+  .btn-logout:hover {
+    @apply bg-md-sys-error/12 border-md-sys-error text-md-sys-error;
+  }
+  .btn-logout svg {
+    @apply w-4.5 h-4.5;
   }
 
   @media (max-width: 768px) {

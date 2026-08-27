@@ -1,0 +1,71 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: music-link:latest
+    restart: unless-stopped
+    # Bound to localhost only — Tailscale Funnel (run on the host) proxies to
+    # this port from the tailnet/internet; it's never exposed on the LAN directly.
+    # Host-side port picked to avoid common dev ports (3000/5173/4173/8080/...).
+    ports:
+      - "127.0.0.1:8420:3000"
+    environment:
+      ORIGIN: ${PUBLIC_ORIGIN}
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER}
+      BASIC_AUTH_PASS: ${BASIC_AUTH_PASS}
+      SCYLLA_HOST: scylla
+      SCYLLA_DATACENTER: datacenter1
+      TYPESENSE_HOST: typesense
+      TYPESENSE_PORT: 8108
+      TYPESENSE_PROTOCOL: http
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY}
+      VALKEY_URL: redis://valkey:6379
+    depends_on:
+      - scylla
+      - typesense
+      - valkey
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/login').then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  scylla:
+    image: scylladb/scylla:6.2
+    restart: unless-stopped
+    # Single-node dev settings — this box doesn't have dedicated cores to pin,
+    # so skip Scylla's normal production CPU/IO tuning.
+    command: --smp 1 --memory 750M --overprovisioned 1 --developer-mode 1 --api-address 0.0.0.0
+    ports:
+      - "127.0.0.1:9042:9042"
+    volumes:
+      - scylla-data:/var/lib/scylla
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  typesense:
+    image: typesense/typesense:27.1
+    restart: unless-stopped
+    environment:
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY}
+      TYPESENSE_DATA_DIR: /data
+    volumes:
+      - typesense-data:/data
+    command: --data-dir /data --api-key=${TYPESENSE_API_KEY} --enable-cors
+
+  valkey:
+    image: valkey/valkey:8
+    restart: unless-stopped
+    volumes:
+      - valkey-data:/data
+
+volumes:
+  scylla-data:
+  typesense-data:
+  valkey-data:

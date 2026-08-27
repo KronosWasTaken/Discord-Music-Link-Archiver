@@ -72,3 +72,8 @@ body {
 .special-badge {
   @apply bg-amber-500/15 border border-solid border-amber-500/30 text-amber-400 px-2 py-0.5 rounded text-[0.68rem] font-bold uppercase;
 }
+
+/* Owner badge, shown when browsing tracks across all users */
+.owner-badge {
+  @apply bg-md-sys-secondary-container text-md-sys-on-secondary-container px-2 py-0.5 rounded text-[0.68rem] font-bold;
+}

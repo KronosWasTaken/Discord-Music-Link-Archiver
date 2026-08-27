@@ -5,6 +5,7 @@ import { extractVideoID, cleanURL } from '$lib/server/parsers';
 import {
   CURATOR,
   getSongsByUser,
+  getAllSongs,
   getSongById,
   insertSong,
   updateSong,
@@ -18,9 +19,10 @@ import type { SongRequest } from '$lib/types';
 
 export const GET: RequestHandler = async ({ url }) => {
   await ensureReady();
-  const user = url.searchParams.get('user') ?? CURATOR;
   try {
-    return json(getSongsByUser(getCanonicalUser(user)));
+    if (url.searchParams.get('all') === '1') return json(await getAllSongs());
+    const user = url.searchParams.get('user') ?? CURATOR;
+    return json(await getSongsByUser(getCanonicalUser(user)));
   } catch (err) {
     console.error('GET /api/songs:', (err as Error).message);
     return json([], { status: 500 });
@@ -39,7 +41,7 @@ export const POST: RequestHandler = async ({ request }) => {
     const id = `user_added_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
     if (!data.day) return text('day is required', { status: 400 });
-    insertSong({
+    await insertSong({
       id,
       owner,
       day: data.day,
@@ -51,10 +53,10 @@ export const POST: RequestHandler = async ({ request }) => {
       originalMessage: data.originalMessage ?? '',
       authorName: data.authorName ?? owner,
       timestamp: new Date().toISOString(),
-      sortOrder: maxSortOrder(owner) + 1
+      sortOrder: (await maxSortOrder(owner)) + 1
     });
 
-    return json(getSongsByUser(owner));
+    return json(await getSongsByUser(owner));
   } catch (err) {
     console.error('POST /api/songs:', (err as Error).message);
     return text('Error saving song', { status: 500 });
@@ -67,11 +69,11 @@ export const PUT: RequestHandler = async ({ request }) => {
     const data = (await request.json()) as SongRequest;
     if (!data.id) return text('id is required', { status: 400 });
 
-    const existing = getSongById(data.id);
+    const existing = await getSongById(data.id);
     if (!existing) return text(`Song ${data.id} not found`, { status: 404 });
 
     const link = data.link ? cleanURL(data.link) : existing.link;
-    const ok = updateSong(data.id, {
+    const ok = await updateSong(data.id, {
       day: data.day ?? existing.day,
       link,
       videoId: extractVideoID(link),
@@ -83,7 +85,7 @@ export const PUT: RequestHandler = async ({ request }) => {
     });
     if (!ok) return text('Update failed', { status: 500 });
 
-    return json(getSongsByUser(existing.owner));
+    return json(await getSongsByUser(existing.owner));
   } catch (err) {
     console.error('PUT /api/songs:', (err as Error).message);
     return text('Error updating song', { status: 500 });
@@ -95,10 +97,10 @@ export const DELETE: RequestHandler = async ({ url }) => {
   const id = url.searchParams.get('id');
   if (!id) return text('id is required', { status: 400 });
   try {
-    const existing = getSongById(id);
+    const existing = await getSongById(id);
     if (!existing) return text(`Song ${id} not found`, { status: 404 });
-    deleteSongById(id);
-    return json(getSongsByUser(existing.owner));
+    await deleteSongById(id);
+    return json(await getSongsByUser(existing.owner));
   } catch (err) {
     console.error('DELETE /api/songs:', (err as Error).message);
     return text('Error deleting song', { status: 500 });

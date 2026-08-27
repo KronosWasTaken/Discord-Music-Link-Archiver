@@ -265,13 +265,13 @@ function applyInfo(r: NewSongRow, info: { title: string; artistHint: string }): 
 
 /** Populate the DB from the legacy JSON/CSV files. No-op once data exists. */
 export async function importIfEmpty(): Promise<void> {
-  if (songCount() > 0) return;
+  if ((await songCount()) > 0) return;
 
   console.log('Importing songs into the database...');
   const usedIds = new Set<string>();
   const rows = [...buildCuratorSongs(usedIds), ...buildContributorSongs(usedIds)];
   await enrich(rows);
-  insertSongs(rows);
+  await insertSongs(rows);
 
   const owners = new Set(rows.map((r) => r.owner));
   console.log(`Imported ${rows.length} songs across ${owners.size} users.`);
