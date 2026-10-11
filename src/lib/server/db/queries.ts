@@ -99,12 +99,17 @@ export const getCanonicalUser = (user: string): string => {
   return user;
 };
 
+/** Users that always get a tab, even before they have any songs. */
+const ALWAYS_LISTED = ['hikachu__', 'anuj_bajracharya'];
+
 /** Distinct owners, curator pinned first, the rest alphabetical. */
 export function getUsers(): Promise<string[]> {
   return cached('songs:users', 60, async () => {
     const result = await client.execute(`SELECT owner FROM ${BY_ID}`);
     const owners = Array.from(new Set(result.rows.map((r) => getCanonicalUser(r.get('owner')))));
-    if (!owners.some((o) => o.toLowerCase() === 'hikachu__')) owners.push('hikachu__');
+    for (const user of ALWAYS_LISTED) {
+      if (!owners.some((o) => o.toLowerCase() === user)) owners.push(user);
+    }
     const others = owners.filter((o) => o.toLowerCase() !== CURATOR).sort();
     return [CURATOR, ...others];
   });

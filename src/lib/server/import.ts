@@ -19,7 +19,7 @@ const DAY_OVERRIDES: Record<string, string> = {
 const DAY_RE = /\bday[\s:-]*(\d+)\b/i;
 
 const EXCLUDED_IDS = new Set(['856119960018485248', '1211781489931452447']);
-const EXCLUDED_NAMES = ['the_pervy_s4ge', 'thepervysage', 'aaditya6789', 'anuj_bajracharya'];
+const EXCLUDED_NAMES = ['the_pervy_s4ge', 'thepervysage', 'aaditya6789'];
 const isExcluded = (authorId: string, author: string): boolean => {
   if (EXCLUDED_IDS.has(authorId)) return true;
   const lo = (author ?? '').toLowerCase();
